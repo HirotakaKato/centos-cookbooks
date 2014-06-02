@@ -1,0 +1,4 @@
+external_url '<%= node['gitlab']['external_url'] %>'
+
+nginx['ssl_certificate']     = '<%= node['gitlab']['ssl_certificate'] %>'
+nginx['ssl_certificate_key'] = '<%= node['gitlab']['ssl_certificate_key'] %>'

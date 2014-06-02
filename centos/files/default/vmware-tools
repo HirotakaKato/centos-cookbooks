@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# chkconfig:   2345 99 1
+# description: vmware-tools
+
+if [ "$1" = "start" ]; then
+	/etc/vmware-tools/services.sh status > /dev/null || /usr/bin/vmware-config-tools.pl -d > /dev/null &
+fi

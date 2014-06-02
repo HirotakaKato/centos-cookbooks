@@ -1,0 +1,7 @@
+setenv http_proxy '<%= node['centos']['http_proxy'] %>'
+setenv ftp_proxy '<%= node['centos']['ftp_proxy'] || node['centos']['http_proxy'] %>'
+setenv no_proxy '<%= node['centos']['no_proxy'] %>'
+
+setenv HTTP_PROXY "$http_proxy"
+setenv FTP_PROXY "$ftp_proxy"
+setenv NO_PROXY "$no_proxy"

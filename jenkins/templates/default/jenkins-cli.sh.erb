@@ -1,0 +1,4 @@
+#!/bin/sh
+
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080<%= @prefix %> install-plugin <%= node.jenkins.install_plugin %> && touch $0.lock
+exit $?

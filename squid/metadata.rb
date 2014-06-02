@@ -1,0 +1,10 @@
+name             'squid'
+maintainer       'Hirotaka Kato'
+maintainer_email 'HirotakaKato@users.noreply.github.com'
+license          'MIT'
+description      'Installs/Configures Squid'
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
+version          '3.1.10'
+supports         'centos'
+depends          'centos'
+depends          'iptables'

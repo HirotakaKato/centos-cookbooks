@@ -1,0 +1,65 @@
+#!/bin/sh
+
+# chkconfig:   345 98 12
+# description: Selenium Server
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+prog=selenium-server
+pidfile=/var/run/$prog.pid
+
+start()
+{
+	[ -s $pidfile ] && ps -p `cat $pidfile` > /dev/null && return 2
+	echo -n $"Starting $prog: "
+	sudo -u selenium xvfb-run -n 0 -a -s '-screen 0 1024x768x24' java -jar /home/selenium/selenium-server-standalone.jar > /var/log/$prog.log 2>&1 &
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && echo $! > $pidfile
+	[ $RETVAL -eq 0 ] && success || failure
+	echo
+	return $RETVAL
+}
+
+stop()
+{
+	[ -s $pidfile ] || return 2
+	echo -n $"Stopping $prog: "
+	killtree `cat $pidfile`
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && rm -f $pidfile
+	[ $RETVAL -eq 0 ] && success || failure
+	echo
+	return $RETVAL
+}
+
+killtree()
+{
+	local children=`ps ho pid --ppid $1`
+	for child in $children
+	do
+		killtree $child
+	done
+	kill $1
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	status)
+		status -p $pidfile $prog
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|restart|status}"
+		exit 2
+esac
+
+exit $?

@@ -1,0 +1,57 @@
+NameVirtualHost *:80
+NameVirtualHost *:443
+<% node['httpd']['virtualhost'].each do |v| %>
+
+<VirtualHost <%= v[:virtualhost] %>>
+    ServerName     <%= v[:ServerName] %>
+<% if v[:ServerAlias] %>
+    ServerAlias    <%= v[:ServerAlias] %>
+<% end %>
+
+<% if v[:redirect] %>
+    RewriteEngine  On
+    RewriteRule    .* http<%= v[:ssl] ? '' : 's' %>://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+<% else %>
+    DocumentRoot   <%= v[:DocumentRoot] %>
+<% Array(v[:ScriptAlias]).each do |item| %>
+    ScriptAlias    <%= item %>
+<% end %>
+<% Array(v[:Alias]).each do |item| %>
+    Alias          <%= item %>
+<% end %>
+<% Array(v[:ProxyPass]).each do |item| %>
+    ProxyPass        <%= item %>
+    ProxyPassReverse <%= item %>
+<% end %>
+<% end %>
+
+<% if v[:ssl] %>
+    SSLEngine      on
+    SSLProtocol    all -SSLv2
+    SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
+
+    SSLCertificateFile      ssl/<%= v[:ServerName] %>.crt
+    SSLCertificateKeyFile   ssl/<%= v[:ServerName] %>.key
+<% if v[:chain] %>
+    SSLCertificateChainFile ssl/<%= v[:ServerName] %>.chain.crt
+<% end %>
+
+    ErrorLog  logs/<%= v[:ServerName] %>.ssl_error_log
+    CustomLog logs/<%= v[:ServerName] %>.ssl_access_log combined
+    CustomLog logs/<%= v[:ServerName] %>.ssl_request_log \
+              "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+<% else %>
+    ErrorLog  logs/<%= v[:ServerName] %>.error_log
+    CustomLog logs/<%= v[:ServerName] %>.access_log combined
+<% end %>
+<% if v[:htpasswd] %>
+
+    <Location />
+        AuthUserFile htpasswd/<%= h[:ServerName] %>.htpasswd
+        AuthName     <%= v[:ServerName] %>
+        AuthType     Basic
+        Require      valid-user
+    </Location>
+<% end %>
+</VirtualHost>
+<% end %>
